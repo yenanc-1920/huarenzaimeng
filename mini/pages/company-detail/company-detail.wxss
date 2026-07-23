@@ -1,0 +1,8 @@
+﻿.company-name { font-size: 36rpx; font-weight: bold; margin-bottom: 16rpx; }
+.detail-row { display: flex; justify-content: space-between; padding: 20rpx 0; border-bottom: 1rpx solid #F5F5F5; }
+.detail-row:last-child { border-bottom: none; }
+.detail-label { font-size: 28rpx; color: #666; }
+.detail-value { font-size: 28rpx; color: #333; }
+.detail-value.phone { color: #0066FF; }
+.section-title { font-size: 30rpx; font-weight: bold; margin-bottom: 16rpx; }
+.description { font-size: 28rpx; color: #666; line-height: 1.8; }

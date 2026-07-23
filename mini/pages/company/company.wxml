@@ -1,0 +1,10 @@
+﻿<view class="container">
+  <view class="company-item card" wx:for="{{companyList}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+    <view class="company-name">{{item.name}}</view>
+    <view class="company-info">
+      <text class="tag tag-green">{{item.industry}}</text>
+      <text class="company-address">{{item.address}}</text>
+    </view>
+    <view class="company-phone">{{item.phone}}</view>
+  </view>
+</view>

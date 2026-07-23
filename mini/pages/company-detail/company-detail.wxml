@@ -1,0 +1,28 @@
+﻿<view class="container">
+  <view class="card">
+    <view class="company-name">{{company.name}}</view>
+    <view class="tag tag-green">{{company.industry}}</view>
+  </view>
+
+  <view class="card">
+    <view class="detail-row">
+      <text class="detail-label">联系电话</text>
+      <text class="detail-value phone" bindtap="callPhone">{{company.phone}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">地址</text>
+      <text class="detail-value">{{company.address}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">工作时间</text>
+      <text class="detail-value">{{company.workingHours}}</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">简介</view>
+    <view class="description">{{company.description}}</view>
+  </view>
+
+  <button class="btn-primary" bindtap="callPhone">拨打电话</button>
+</view>

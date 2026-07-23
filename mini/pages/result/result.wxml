@@ -1,0 +1,27 @@
+﻿<view class="container result-container">
+  <!-- 成功状态 -->
+  <view class="result-card card" wx:if="{{status === 'success'}}">
+    <view class="result-icon success-icon">✓</view>
+    <view class="result-title">充值成功</view>
+    <view class="result-desc">订单号：{{orderNo}}</view>
+  </view>
+
+  <!-- 处理中状态 -->
+  <view class="result-card card" wx:if="{{status === 'pending'}}">
+    <view class="result-icon pending-icon">...</view>
+    <view class="result-title">充值处理中</view>
+    <view class="result-desc">预计1-5分钟到账，请耐心等待</view>
+  </view>
+
+  <!-- 失败状态 -->
+  <view class="result-card card" wx:if="{{status === 'failed'}}">
+    <view class="result-icon failed-icon">✗</view>
+    <view class="result-title">充值失败</view>
+    <view class="result-desc">金额将原路退回，请重试</view>
+  </view>
+
+  <view class="result-actions">
+    <button class="btn-primary" bindtap="goHome">返回首页</button>
+    <button class="btn-secondary" bindtap="goOrders">查看订单</button>
+  </view>
+</view>

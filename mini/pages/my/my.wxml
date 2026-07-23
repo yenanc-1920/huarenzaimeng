@@ -1,0 +1,20 @@
+﻿<view class="container">
+  <!-- 用户信息 -->
+  <view class="user-card card">
+    <view class="avatar" wx:if="{{!userInfo}}" bindtap="getUserProfile">
+      <text class="avatar-text">登录</text>
+    </view>
+    <view class="user-info" wx:if="{{userInfo}}">
+      <image class="avatar-img" src="{{userInfo.avatarUrl}}" />
+      <text class="nickname">{{userInfo.nickName}}</text>
+    </view>
+  </view>
+
+  <!-- 菜单列表 -->
+  <view class="menu-list card">
+    <view class="menu-item" wx:for="{{menuList}}" wx:key="id" bindtap="goPage" data-id="{{item.id}}">
+      <text class="menu-name">{{item.name}}</text>
+      <text class="menu-arrow">></text>
+    </view>
+  </view>
+</view>
