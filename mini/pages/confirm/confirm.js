@@ -21,14 +21,26 @@ Page({
       return
     }
     var that = this
+    wx.showLoading({ title: '正在校验号码...' })
     that.setData({ mnpStatus: 'checking' })
+    
     setTimeout(function() {
+      wx.hideLoading()
       that.setData({ mnpStatus: 'success' })
+      wx.showToast({ title: '校验通过', icon: 'success', duration: 1000 })
+      
       setTimeout(function() {
-        wx.redirectTo({
-          url: '/pages/result/result?status=success&orderNo=HM20260723000001'
-        })
-      }, 500)
+        wx.showLoading({ title: '支付处理中...' })
+        setTimeout(function() {
+          wx.hideLoading()
+          wx.showToast({ title: '支付成功', icon: 'success', duration: 1500 })
+          setTimeout(function() {
+            wx.redirectTo({
+              url: '/pages/result/result?status=success&orderNo=HM' + Date.now()
+            })
+          }, 1500)
+        }, 1000)
+      }, 1000)
     }, 1500)
   }
 })

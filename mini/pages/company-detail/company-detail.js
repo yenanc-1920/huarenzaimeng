@@ -11,6 +11,15 @@ Page({
     }
   },
   callPhone() {
-    wx.makePhoneCall({ phoneNumber: this.data.company.phone })
+    var phone = this.data.company.phone
+    wx.makePhoneCall({
+      phoneNumber: phone,
+      success: function() {
+        console.log('Calling ' + phone)
+      },
+      fail: function() {
+        wx.showToast({ title: '拨号取消', icon: 'none' })
+      }
+    })
   }
 })

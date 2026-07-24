@@ -25,6 +25,11 @@ Page({
     var phone = e.detail.value
     var operator = this.detectOperator(phone)
     this.setData({ phone: phone, selectedOperator: operator })
+    
+    // Show warning if phone is long enough but no operator matched
+    if (phone.length >= 3 && !operator) {
+      wx.showToast({ title: '未识别运营商，请手动选择', icon: 'none', duration: 2000 })
+    }
   },
   detectOperator(phone) {
     if (phone.length < 3) return null
@@ -41,6 +46,14 @@ Page({
   selectOperator(e) {
     var id = e.currentTarget.dataset.id
     this.setData({ selectedOperator: id })
+    var opName = ''
+    for (var i = 0; i < this.data.operators.length; i++) {
+      if (this.data.operators[i].id === id) {
+        opName = this.data.operators[i].name
+        break
+      }
+    }
+    wx.showToast({ title: '已选择' + opName, icon: 'none', duration: 1000 })
   },
   selectProduct(e) {
     var product = e.currentTarget.dataset.product
@@ -61,5 +74,17 @@ Page({
     var phone = e.currentTarget.dataset.phone
     var operator = this.detectOperator(phone)
     this.setData({ phone: phone, selectedOperator: operator })
+    if (operator) {
+      var opName = ''
+      for (var i = 0; i < this.data.operators.length; i++) {
+        if (this.data.operators[i].id === operator) {
+          opName = this.data.operators[i].name
+          break
+        }
+      }
+      wx.showToast({ title: '已选择' + opName, icon: 'none', duration: 1000 })
+    } else {
+      wx.showToast({ title: '未识别运营商，请手动选择', icon: 'none', duration: 2000 })
+    }
   }
 })
