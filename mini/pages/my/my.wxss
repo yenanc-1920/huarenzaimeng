@@ -1,4 +1,4 @@
-﻿.user-card { text-align: center; padding: 48rpx 24rpx; }
+.user-card { text-align: center; padding: 48rpx 24rpx; }
 .avatar { width: 120rpx; height: 120rpx; border-radius: 50%; background: #E8E8E8; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
 .avatar-text { font-size: 28rpx; color: #999; }
 .avatar-img { width: 120rpx; height: 120rpx; border-radius: 50%; margin: 0 auto; display: block; }

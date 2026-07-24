@@ -1,4 +1,4 @@
-﻿<view class="container">
+<view class="container">
   <view class="order-item card" wx:for="{{orders}}" wx:key="id">
     <view class="order-header">
       <text class="order-no">{{item.orderNo}}</text>
@@ -11,14 +11,13 @@
       </view>
       <view class="order-info">
         <text class="order-label">充值金额</text>
-        <text class="order-value price">৳{{item.amount}}</text>
+        <text class="order-value price">{{item.amount}} Taka</text>
       </view>
     </view>
     <view class="order-footer">
       <text class="order-time">{{item.time}}</text>
     </view>
   </view>
-
   <view class="empty" wx:if="{{orders.length === 0}}">
     <text>暂无订单</text>
   </view>

@@ -1,4 +1,4 @@
-﻿.result-container { text-align: center; padding-top: 80rpx; }
+.result-container { text-align: center; padding-top: 80rpx; }
 .result-card { padding: 60rpx 24rpx; }
 .result-icon { font-size: 96rpx; margin-bottom: 32rpx; }
 .success-icon { color: #52C41A; }

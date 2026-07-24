@@ -1,4 +1,4 @@
-﻿Page({
+Page({
   data: {
     orders: [
       { id: 1, orderNo: 'HM20260723000001', phone: '01712345678', amount: '500', status: 'SUCCESS', statusText: '充值成功', time: '2026-07-23 18:30' },

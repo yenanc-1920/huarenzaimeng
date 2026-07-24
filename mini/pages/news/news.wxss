@@ -1,4 +1,4 @@
-﻿.news-item { display: flex; padding: 24rpx; }
+.news-item { display: flex; padding: 24rpx; }
 .news-content { flex: 1; }
 .news-title { font-size: 30rpx; font-weight: bold; color: #333; margin-bottom: 12rpx; }
 .news-summary { font-size: 26rpx; color: #666; line-height: 1.6; margin-bottom: 12rpx; }

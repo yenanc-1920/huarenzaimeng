@@ -1,4 +1,4 @@
-﻿.phone-input {
+.phone-input {
   display: flex;
   align-items: center;
   border-bottom: 2rpx solid #eee;

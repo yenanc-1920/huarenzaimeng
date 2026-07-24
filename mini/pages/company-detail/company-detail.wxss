@@ -1,4 +1,4 @@
-﻿.company-name { font-size: 36rpx; font-weight: bold; margin-bottom: 16rpx; }
+.company-name { font-size: 36rpx; font-weight: bold; margin-bottom: 16rpx; }
 .detail-row { display: flex; justify-content: space-between; padding: 20rpx 0; border-bottom: 1rpx solid #F5F5F5; }
 .detail-row:last-child { border-bottom: none; }
 .detail-label { font-size: 28rpx; color: #666; }

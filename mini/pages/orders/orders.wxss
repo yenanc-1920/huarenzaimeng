@@ -1,4 +1,4 @@
-﻿.order-item { padding: 24rpx; }
+.order-item { padding: 24rpx; }
 .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20rpx; padding-bottom: 16rpx; border-bottom: 1rpx solid #F5F5F5; }
 .order-no { font-size: 26rpx; color: #666; }
 .order-status { font-size: 26rpx; font-weight: 500; }

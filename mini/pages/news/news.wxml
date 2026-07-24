@@ -1,4 +1,4 @@
-﻿<view class="container">
+<view class="container">
   <view class="news-item card" wx:for="{{newsList}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
     <view class="news-content">
       <view class="news-title">{{item.title}}</view>

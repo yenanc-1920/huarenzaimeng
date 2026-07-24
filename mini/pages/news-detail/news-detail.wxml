@@ -1,4 +1,4 @@
-﻿<view class="container">
+<view class="container">
   <view class="card">
     <view class="news-title">{{news.title}}</view>
     <view class="news-date">{{news.date}}</view>

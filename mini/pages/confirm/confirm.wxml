@@ -1,5 +1,4 @@
-﻿<view class="container">
-  <!-- 充值信息 -->
+<view class="container">
   <view class="card">
     <view class="info-row">
       <text class="label">充值号码</text>
@@ -11,15 +10,13 @@
     </view>
     <view class="info-row">
       <text class="label">充值金额</text>
-      <text class="value price">৳{{price}}</text>
+      <text class="value price">{{price}} Taka</text>
     </view>
     <view class="info-row">
       <text class="label">折合人民币</text>
-      <text class="value">¥{{cnyPrice}}</text>
+      <text class="value">{{cnyPrice}} CNY</text>
     </view>
   </view>
-
-  <!-- MNP校验状态 -->
   <view class="card" wx:if="{{mnpStatus}}">
     <view class="mnp-status">
       <view class="checking" wx:if="{{mnpStatus === 'checking'}}">
@@ -27,16 +24,11 @@
         <text>号码校验中，请稍候</text>
       </view>
       <view class="success" wx:if="{{mnpStatus === 'success'}}">
-        <text class="status-icon ok">✓</text>
+        <text class="status-icon ok">OK</text>
         <text>号码校验通过</text>
       </view>
     </view>
   </view>
-
-  <!-- 确认按钮 -->
-  <button class="btn-primary pay-btn" bindtap="confirmPay" disabled="{{mnpStatus === 'checking'}}">
-    确认支付 ৳{{price}}
-  </button>
-
-  <view class="tip">支付即表示同意《服务协议》</view>
+  <button class="btn-primary pay-btn" bindtap="confirmPay" disabled="{{mnpStatus === 'checking'}}">确认支付 {{price}} Taka</button>
+  <view class="tip">支付即表示同意服务协议</view>
 </view>

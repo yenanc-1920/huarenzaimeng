@@ -1,4 +1,4 @@
-﻿Page({
+Page({
   data: {
     news: {
       id: 1,
