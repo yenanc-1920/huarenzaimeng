@@ -2,6 +2,12 @@ Page({
   data: {
     phone: '',
     selectedOperator: null,
+    operators: [
+      { id: 'gp', name: 'Grameenphone', prefix: ['017', '013'] },
+      { id: 'robi', name: 'Robi', prefix: ['018', '019'] },
+      { id: 'bl', name: 'Banglalink', prefix: ['014', '015'] },
+      { id: 'teletalk', name: 'Teletalk', prefix: ['016'] }
+    ],
     products: [
       { id: 1, name: '10 Taka', price: 10, operator: 'Grameenphone' },
       { id: 2, name: '20 Taka', price: 20, operator: 'Grameenphone' },
@@ -16,17 +22,44 @@ Page({
     ]
   },
   onPhoneInput(e) {
-    this.setData({ phone: e.detail.value })
+    var phone = e.detail.value
+    var operator = this.detectOperator(phone)
+    this.setData({ phone: phone, selectedOperator: operator })
+  },
+  detectOperator(phone) {
+    if (phone.length < 3) return null
+    var prefix = phone.substring(0, 3)
+    var operators = this.data.operators
+    for (var i = 0; i < operators.length; i++) {
+      var op = operators[i]
+      for (var j = 0; j < op.prefix.length; j++) {
+        if (op.prefix[j] === prefix) return op.id
+      }
+    }
+    return null
+  },
+  selectOperator(e) {
+    var id = e.currentTarget.dataset.id
+    this.setData({ selectedOperator: id })
   },
   selectProduct(e) {
     var product = e.currentTarget.dataset.product
     var phone = this.data.phone
+    if (!phone || phone.length < 10) {
+      wx.showToast({ title: '请输入正确手机号', icon: 'none' })
+      return
+    }
+    if (!this.data.selectedOperator) {
+      wx.showToast({ title: '请选择运营商', icon: 'none' })
+      return
+    }
     wx.navigateTo({
-      url: '/pages/confirm/confirm?phone=' + phone + '&productId=' + product.id + '&price=' + product.price + '&name=' + product.name
+      url: '/pages/confirm/confirm?phone=' + phone + '&productId=' + product.id + '&price=' + product.price + '&name=' + product.name + '&operator=' + this.data.selectedOperator
     })
   },
   useFavorite(e) {
     var phone = e.currentTarget.dataset.phone
-    this.setData({ phone: phone })
+    var operator = this.detectOperator(phone)
+    this.setData({ phone: phone, selectedOperator: operator })
   }
 })

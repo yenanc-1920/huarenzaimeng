@@ -19,6 +19,36 @@
   color: #666;
   margin-bottom: 12rpx;
 }
+.operator-row {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+  flex-wrap: wrap;
+}
+.operator-label {
+  font-size: 26rpx;
+  color: #666;
+  margin-right: 12rpx;
+}
+.operator-tags {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+.op-tag {
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  background: #F5F5F5;
+  color: #666;
+  border: 2rpx solid transparent;
+}
+.op-active {
+  background: #F0F5FF;
+  color: #0066FF;
+  border-color: #0066FF;
+  font-weight: bold;
+}
 .favorites {
   margin-top: 20rpx;
 }

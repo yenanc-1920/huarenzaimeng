@@ -5,6 +5,14 @@
       <text class="prefix">+880</text>
       <input type="number" maxlength="11" placeholder="请输入手机号" value="{{phone}}" bindinput="onPhoneInput" />
     </view>
+    <view class="operator-row" wx:if="{{phone.length >= 3}}">
+      <text class="operator-label">运营商：</text>
+      <view class="operator-tags">
+        <view class="op-tag {{selectedOperator === item.id ? 'op-active' : ''}}" wx:for="{{operators}}" wx:key="id" bindtap="selectOperator" data-id="{{item.id}}">
+          {{item.name}}
+        </view>
+      </view>
+    </view>
     <view class="favorites" wx:if="{{favorites.length > 0}}">
       <text class="fav-label">常用号码：</text>
       <view class="fav-list">
