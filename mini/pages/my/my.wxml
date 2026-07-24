@@ -11,7 +11,7 @@
   <view class="menu-list card">
     <view class="menu-item" wx:for="{{menuList}}" wx:key="id" bindtap="goPage" data-id="{{item.id}}">
       <text class="menu-name">{{item.name}}</text>
-      <text class="menu-arrow">></text>
+      <text class="menu-arrow">&gt;</text>
     </view>
   </view>
 </view>
