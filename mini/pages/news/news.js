@@ -1,4 +1,4 @@
-﻿Page({
+Page({
   data: {
     newsList: [
       { id: 1, title: '孟加拉国独立日放假通知', summary: '3月26日为孟加拉国独立日，全国放假一天...', date: '2026-07-20', image: '' },
@@ -7,7 +7,7 @@
     ]
   },
   goDetail(e) {
-    const id = e.currentTarget.dataset.id
+    var id = e.currentTarget.dataset.id
     wx.navigateTo({ url: '/pages/news-detail/news-detail?id=' + id })
   }
 })

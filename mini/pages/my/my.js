@@ -1,4 +1,4 @@
-﻿Page({
+Page({
   data: {
     userInfo: null,
     menuList: [
@@ -8,15 +8,16 @@
     ]
   },
   getUserProfile() {
+    var that = this
     wx.getUserProfile({
       desc: '用于完善用户资料',
-      success: (res) => {
-        this.setData({ userInfo: res.userInfo })
+      success: function(res) {
+        that.setData({ userInfo: res.userInfo })
       }
     })
   },
   goPage(e) {
-    const id = e.currentTarget.dataset.id
+    var id = e.currentTarget.dataset.id
     if (id === 'orders') {
       wx.navigateTo({ url: '/pages/orders/orders' })
     } else {

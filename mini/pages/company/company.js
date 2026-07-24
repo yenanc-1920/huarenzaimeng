@@ -1,4 +1,4 @@
-﻿Page({
+Page({
   data: {
     companyList: [
       { id: 1, name: '华为孟加拉办事处', industry: '通信', phone: '+880-17-12345678', address: '达卡Gulshan-2' },
@@ -7,7 +7,7 @@
     ]
   },
   goDetail(e) {
-    const id = e.currentTarget.dataset.id
+    var id = e.currentTarget.dataset.id
     wx.navigateTo({ url: '/pages/company-detail/company-detail?id=' + id })
   }
 })

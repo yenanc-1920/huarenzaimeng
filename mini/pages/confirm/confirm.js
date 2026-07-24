@@ -1,11 +1,11 @@
-﻿Page({
+Page({
   data: {
     phone: '',
     productName: '',
     price: 0,
     cnyPrice: '0.00',
     operator: 'Grameenphone',
-    mnpStatus: '' // '' | 'checking' | 'success' | 'failed'
+    mnpStatus: ''
   },
   onLoad(options) {
     this.setData({
@@ -20,12 +20,11 @@
       wx.showToast({ title: '请输入正确手机号', icon: 'none' })
       return
     }
-    // Mock: 模拟MNP校验
-    this.setData({ mnpStatus: 'checking' })
-    setTimeout(() => {
-      this.setData({ mnpStatus: 'success' })
-      setTimeout(() => {
-        // 模拟支付成功，跳转结果页
+    var that = this
+    that.setData({ mnpStatus: 'checking' })
+    setTimeout(function() {
+      that.setData({ mnpStatus: 'success' })
+      setTimeout(function() {
         wx.redirectTo({
           url: '/pages/result/result?status=success&orderNo=HM20260723000001'
         })

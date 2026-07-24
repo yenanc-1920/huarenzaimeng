@@ -1,4 +1,4 @@
-﻿Page({
+Page({
   data: {
     phone: '',
     selectedOperator: null,
@@ -19,13 +19,14 @@
     this.setData({ phone: e.detail.value })
   },
   selectProduct(e) {
-    const product = e.currentTarget.dataset.product
+    var product = e.currentTarget.dataset.product
+    var phone = this.data.phone
     wx.navigateTo({
-      url: /pages/confirm/confirm?phone=&productId=&price=&name=
+      url: '/pages/confirm/confirm?phone=' + phone + '&productId=' + product.id + '&price=' + product.price + '&name=' + product.name
     })
   },
   useFavorite(e) {
-    const phone = e.currentTarget.dataset.phone
-    this.setData({ phone })
+    var phone = e.currentTarget.dataset.phone
+    this.setData({ phone: phone })
   }
 })

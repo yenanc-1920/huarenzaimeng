@@ -1,6 +1,6 @@
-﻿Page({
+Page({
   data: {
-    status: 'success', // success | pending | failed
+    status: 'success',
     orderNo: ''
   },
   onLoad(options) {
