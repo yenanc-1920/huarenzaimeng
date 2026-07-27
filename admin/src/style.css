@@ -1,1 +1,23 @@
-﻿/* Global resets handled by Ant Design Vue */
+:root {
+  --hm-primary: #003366;
+  --hm-accent: #FA8C16;
+  --hm-bg: #F5F7FA;
+  --hm-card: #FFFFFF;
+  --hm-text: #333333;
+  --hm-text-secondary: #666666;
+  --hm-text-muted: #999999;
+  --hm-border: #E8E8E8;
+  --hm-success: #52C41A;
+  --hm-error: #FF4D4F;
+  --hm-warning: #FA8C16;
+  --hm-info: #1890FF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.hm-mono {
+  font-family: 'DIN Alternate', 'Roboto Mono', 'Courier New', monospace;
+  font-variant-numeric: tabular-nums;
+}
