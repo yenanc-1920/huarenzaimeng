@@ -57,7 +57,7 @@ public class ReloadlyClient {
         String body = "{\"client_id\":\"" + properties.getClientId() + "\","
                 + "\"client_secret\":\"" + properties.getClientSecret() + "\","
                 + "\"grant_type\":\"client_credentials\","
-                + "\"audience\":\"https://topups.reloadly.com\"}";
+                + "\"audience\":\"" + properties.getApiUrl() + "\"}";
 
         Request request = new Request.Builder()
                 .url(properties.getAuthUrl())

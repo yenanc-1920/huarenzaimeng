@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -49,9 +48,10 @@ public class ProductSyncService {
         for (JsonNode opNode : operators) {
             long reloadlyId = opNode.get("operatorId").asLong();
             String name = opNode.get("name").asText();
-            boolean bundle = opNode.has("bundle") && opNode.get("bundle").asBoolean();
-            BigDecimal fxRate = opNode.has("fx") && opNode.get("fx").has("rate")
-                    ? new BigDecimal(opNode.get("fx").get("rate").asText()) : null;
+            boolean isData = opNode.has("data") && opNode.get("data").asBoolean();
+            boolean isBundle = opNode.has("bundle") && opNode.get("bundle").asBoolean();
+            BigDecimal fxRate = opNode.has("fxRate") && !opNode.get("fxRate").isNull()
+                    ? new BigDecimal(opNode.get("fxRate").asText()) : null;
 
             Operator operator = operatorMapper.selectOne(
                     new LambdaQueryWrapper<Operator>().eq(Operator::getReloadlyOperatorId, reloadlyId));
@@ -61,7 +61,7 @@ public class ProductSyncService {
                 operator.setReloadlyOperatorId(reloadlyId);
                 operator.setName(name);
                 operator.setCountry("Bangladesh");
-                operator.setBundle(bundle ? 1 : 0);
+                operator.setBundle((isData || isBundle) ? 1 : 0);
                 operator.setFxRate(fxRate);
                 operator.setFxRateUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
                 operator.setStatus(1);
@@ -71,6 +71,11 @@ public class ProductSyncService {
                 boolean changed = false;
                 if (!name.equals(operator.getName())) {
                     operator.setName(name);
+                    changed = true;
+                }
+                int bundleFlag = (isData || isBundle) ? 1 : 0;
+                if (operator.getBundle() == null || operator.getBundle() != bundleFlag) {
+                    operator.setBundle(bundleFlag);
                     changed = true;
                 }
                 if (fxRate != null && (operator.getFxRate() == null || fxRate.compareTo(operator.getFxRate()) != 0)) {
@@ -84,53 +89,85 @@ public class ProductSyncService {
                 }
             }
 
-            syncProductsForOperator(operator, opNode);
+            syncProductsForOperator(operator, opNode, isData);
         }
 
-        log.info("Product sync completed: new={}, updated={}", newCount, updateCount);
+        log.info("Product sync completed: newOperators={}, updatedOperators={}", newCount, updateCount);
         return new SyncResult(newCount, updateCount);
     }
 
-    private void syncProductsForOperator(Operator operator, JsonNode opNode) {
-        if (!opNode.has("fixedAmounts")) {
+    private void syncProductsForOperator(Operator operator, JsonNode opNode, boolean isData) {
+        String topupType = isData ? "BUNDLE" : "AIRTIME";
+
+        JsonNode denominations = opNode.get("fixedTopupsDenominations");
+        if (denominations != null && denominations.isArray() && !denominations.isEmpty()) {
+            for (JsonNode amountNode : denominations) {
+                double usdAmount = amountNode.asDouble();
+                syncSingleProduct(operator, topupType, usdAmount, null);
+            }
             return;
         }
 
-        JsonNode fixedAmounts = opNode.get("fixedAmounts");
-        for (JsonNode amountNode : fixedAmounts) {
-            double usdAmount = amountNode.asDouble();
-            syncSingleProduct(operator, "AIRTIME", usdAmount);
+        JsonNode localDenominations = opNode.get("localFixedTopupsDenominations");
+        if (localDenominations != null && localDenominations.isArray() && !localDenominations.isEmpty()) {
+            for (JsonNode amountNode : localDenominations) {
+                double localAmount = amountNode.asDouble();
+                syncSingleProduct(operator, topupType, 0, localAmount);
+            }
+            return;
         }
 
-        if (operator.getBundle() == 1 && opNode.has("fixedAmountsDescriptions")) {
-            // Bundle products synced via separate data plans if available
+        if (!isData) {
+            JsonNode suggested = opNode.get("suggestedTopupsDenominations");
+            if (suggested != null && suggested.isArray() && !suggested.isEmpty()) {
+                for (JsonNode amountNode : suggested) {
+                    double usdAmount = amountNode.asDouble();
+                    syncSingleProduct(operator, topupType, usdAmount, null);
+                }
+            }
         }
     }
 
-    private void syncSingleProduct(Operator operator, String topupType, double usdCost) {
+    private void syncSingleProduct(Operator operator, String topupType, double usdCost, Double localAmount) {
         BigDecimal cost = BigDecimal.valueOf(usdCost);
+        BigDecimal bdtAmount = localAmount != null ? BigDecimal.valueOf(localAmount) : null;
 
-        Product existing = productMapper.selectOne(new LambdaQueryWrapper<Product>()
-                .eq(Product::getOperatorId, operator.getId())
-                .eq(Product::getTopupType, topupType)
-                .eq(Product::getUsdCost, cost));
+        Product existing;
+        if (usdCost > 0) {
+            existing = productMapper.selectOne(new LambdaQueryWrapper<Product>()
+                    .eq(Product::getOperatorId, operator.getId())
+                    .eq(Product::getTopupType, topupType)
+                    .eq(Product::getUsdCost, cost));
+        } else {
+            existing = productMapper.selectOne(new LambdaQueryWrapper<Product>()
+                    .eq(Product::getOperatorId, operator.getId())
+                    .eq(Product::getTopupType, topupType)
+                    .eq(Product::getBdtAmount, bdtAmount));
+        }
 
         if (existing == null) {
             Product product = new Product();
             product.setOperatorId(operator.getId());
             product.setTopupType(topupType);
-            product.setName(operator.getName() + " " + topupType + " $" + usdCost);
-            product.setUsdCost(cost);
+            if (usdCost > 0) {
+                product.setName(operator.getName() + " $" + usdCost);
+                product.setUsdCost(cost);
+            } else {
+                product.setName(operator.getName() + " " + bdtAmount + " BDT");
+                product.setUsdCost(BigDecimal.ZERO);
+                product.setBdtAmount(bdtAmount);
+            }
             product.setPriceMode("AUTO");
             product.setLossRate(new BigDecimal("0.03"));
             product.setProfitRate(new BigDecimal("0.15"));
-            product.setCnyPrice(priceService.calculateAutoPrice(cost, operator.getFxRate(),
-                    product.getLossRate(), product.getProfitRate()));
+            product.setCnyPrice(priceService.calculateAutoPrice(
+                    usdCost > 0 ? cost : BigDecimal.ZERO,
+                    operator.getFxRate(), product.getLossRate(), product.getProfitRate()));
             product.setStatus(1);
             product.setReloadlyUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
             productMapper.insert(product);
         } else {
-            if (operator.getFxRate() != null && "AUTO".equals(existing.getPriceMode())) {
+            if (operator.getFxRate() != null && "AUTO".equals(existing.getPriceMode()) && usdCost > 0) {
                 BigDecimal newPrice = priceService.calculateAutoPrice(cost, operator.getFxRate(),
                         existing.getLossRate(), existing.getProfitRate());
                 if (newPrice.compareTo(existing.getCnyPrice()) != 0) {
