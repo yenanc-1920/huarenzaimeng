@@ -15,7 +15,7 @@ public class ReloadlyOperatorAdapter {
     }
 
     public JsonNode getOperators(String countryCode) {
-        return client.get("/operators?countryCode=" + countryCode + "&includeBundles=true&includeDataPlans=true");
+        return client.get("/countries/" + countryCode + "/operators");
     }
 
     public JsonNode getOperatorFxRates() {
