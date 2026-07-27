@@ -36,7 +36,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(wxAuthInterceptor)
                 .addPathPatterns("/wx/**")
-                .excludePathPatterns("/wx/pay/callback");
+                .excludePathPatterns("/wx/pay/callback", "/wx/security/callback");
 
         registry.addInterceptor(adminAuthInterceptor)
                 .addPathPatterns("/admin/**")
