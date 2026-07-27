@@ -49,6 +49,7 @@ jobs:
   docker-build:
     needs: build-and-test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
@@ -78,8 +79,6 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   deploy-dev:
     needs: docker-build
