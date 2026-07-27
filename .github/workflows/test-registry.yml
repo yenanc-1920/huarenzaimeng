@@ -1,7 +1,10 @@
 name: Registry Connectivity Test
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/test-registry.yml'
 
 jobs:
   test-login:
