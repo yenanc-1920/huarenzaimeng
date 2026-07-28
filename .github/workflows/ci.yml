@@ -5,14 +5,22 @@ on:
     branches: [develop, master]
     paths:
       - 'server/**'
+      - 'admin/**'
+      - 'mini/**'
+      - 'sql/**'
       - '.github/workflows/ci.yml'
   pull_request:
     branches: [master]
     paths:
       - 'server/**'
+      - 'admin/**'
+      - 'mini/**'
+      - 'sql/**'
+      - '.github/workflows/ci.yml'
 
 jobs:
-  build-and-test:
+  server:
+    name: Server build and tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,8 +35,53 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build with Maven
+      - name: Build server
         run: mvn clean package -DskipTests -B
 
-      - name: Run tests
+      - name: Run server tests
         run: mvn test -B
+
+  admin:
+    name: Admin build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: admin/package-lock.json
+
+      - name: Install admin dependencies
+        working-directory: admin
+        run: npm ci
+
+      - name: Build admin
+        working-directory: admin
+        run: npm run build
+
+      - name: Verify embedded admin assets
+        run: diff -qr admin/dist server/src/main/resources/static/console
+
+  mini:
+    name: Mini program build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: mini/package-lock.json
+
+      - name: Install mini program dependencies
+        working-directory: mini
+        run: npm ci
+
+      - name: Build WeChat mini program
+        working-directory: mini
+        run: npm run build:mp-weixin

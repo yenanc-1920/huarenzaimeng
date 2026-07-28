@@ -1,4 +1,4 @@
-﻿# ===== Java =====
+# ===== Java =====
 *.class
 *.jar
 *.war
@@ -33,3 +33,7 @@ Thumbs.db
 # ===== Logs =====
 logs/
 *.log
+
+# ===== Local agent / platform state =====
+.qoder/
+**/project.private.config.json
