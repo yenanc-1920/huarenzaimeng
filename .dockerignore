@@ -1,0 +1,11 @@
+.git
+.github
+.qoder
+**/node_modules
+**/dist
+**/target
+**/*.log
+docs
+code
+材料
+设计
