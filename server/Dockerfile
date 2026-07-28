@@ -15,5 +15,5 @@ COPY start.sh start.sh
 RUN chmod +x start.sh
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8080/api/actuator/health || exit 1
+    CMD curl -f http://localhost:8080/api/actuator/health/liveness || exit 1
 ENTRYPOINT ["sh", "start.sh"]
