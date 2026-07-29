@@ -49,69 +49,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { rechargeApi } from '@/api'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
-import { getOperators } from '@/utils/phone'
-
-const phone = ref('')
-const operatorName = ref('')
-const productName = ref('')
-const topupType = ref('AIRTIME')
-const submitting = ref(false)
-const showDialog = ref(false)
-
-const product = ref({ priceCny: '0', amountBdt: '0', name: '' })
-
-onMounted(() => {
-  const pages = getCurrentPages()
-  const page = pages[pages.length - 1]
-  const options = page.options || {}
-  phone.value = options.phone || ''
-  topupType.value = options.topupType || 'AIRTIME'
-
-  const opId = Number(options.operatorId)
-  const op = getOperators().find(o => o.id === opId)
-  operatorName.value = op ? op.name : '未知运营商'
-
-  loadMockProduct(options.productId)
-})
-
-function loadMockProduct(productId) {
-  const mockAirtime = [
-    { id: '1', priceCny: '21.5', amountBdt: '250', name: '话费 ৳250' },
-    { id: '2', priceCny: '42.5', amountBdt: '500', name: '话费 ৳500' },
-    { id: '3', priceCny: '85.0', amountBdt: '1000', name: '话费 ৳1000' },
-    { id: '4', priceCny: '127.5', amountBdt: '1500', name: '话费 ৳1500' },
-    { id: '5', priceCny: '170.0', amountBdt: '2000', name: '话费 ৳2000' },
-    { id: '6', priceCny: '255.0', amountBdt: '3000', name: '话费 ৳3000' }
-  ]
-  const mockBundle = [
-    { id: '101', priceCny: '35.0', amountBdt: '399', name: '7天 3GB流量包' },
-    { id: '102', priceCny: '55.0', amountBdt: '699', name: '30天 10GB流量包' },
-    { id: '103', priceCny: '85.0', amountBdt: '999', name: '30天 20GB流量包' }
-  ]
-  const list = topupType.value === 'AIRTIME' ? mockAirtime : mockBundle
-  const found = list.find(p => p.id === productId)
-  if (found) {
-    product.value = found
-    productName.value = found.name
-  }
-}
-
-function onConfirm() {
-  if (submitting.value) return
-  showDialog.value = true
-}
-
-function onDialogConfirm() {
-  showDialog.value = false
-  submitting.value = true
-  setTimeout(() => {
-    submitting.value = false
-    uni.redirectTo({
-      url: `/pages/result/result?status=success&phone=${phone.value}&amount=${product.value.amountBdt}&price=${product.value.priceCny}`
-    })
-  }, 1500)
-}
+const phone=ref(''),operatorName=ref(''),productName=ref(''),topupType=ref('AIRTIME'),submitting=ref(false),showDialog=ref(false),product=ref({priceCny:'0',amountBdt:'0',name:''})
+onMounted(()=>{const pages=getCurrentPages(),options=pages[pages.length-1].options||{};phone.value=options.phone||'';topupType.value=options.topupType||'AIRTIME';operatorName.value=decodeURIComponent(options.operatorName||'未知运营商');const cached=uni.getStorageSync('pendingProduct');if(cached&&String(cached.id)===String(options.productId)){product.value=cached;productName.value=cached.name||(topupType.value==='AIRTIME'?`话费 ৳${cached.amountBdt}`:'流量套餐')}})
+function onConfirm(){if(!submitting.value)showDialog.value=true}
+async function onDialogConfirm(){showDialog.value=false;submitting.value=true;try{const response=await rechargeApi.createOrder({phone:phone.value,productId:product.value.id});const order=response.data;uni.removeStorageSync('pendingProduct');uni.redirectTo({url:`/pages/result/result?status=processing&orderNo=${order.orderNo}&phone=${phone.value}&amount=${order.bdtAmount||product.value.amountBdt}&price=${order.cnyPrice||product.value.priceCny}`})}catch(e){uni.showToast({title:e.message||'订单创建失败',icon:'none'})}finally{submitting.value=false}}
 </script>
 
 <style lang="scss" scoped>

@@ -6,7 +6,10 @@
     { "path": "pages/my/my", "style": { "navigationBarTitleText": "我的" } },
     { "path": "pages/recharge/recharge", "style": { "navigationBarTitleText": "充值" } },
     { "path": "pages/confirm-order/confirm-order", "style": { "navigationBarTitleText": "确认订单" } },
-    { "path": "pages/result/result", "style": { "navigationBarTitleText": "充值结果" } }
+    { "path": "pages/result/result", "style": { "navigationBarTitleText": "充值结果" } },
+    { "path": "pages/news-detail/news-detail", "style": { "navigationBarTitleText": "资讯详情" } },
+    { "path": "pages/company-detail/company-detail", "style": { "navigationBarTitleText": "企业详情" } },
+    { "path": "pages/orders/orders", "style": { "navigationBarTitleText": "充值记录" } }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",

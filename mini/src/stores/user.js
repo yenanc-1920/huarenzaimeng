@@ -1,32 +1,60 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { userApi } from '@/api'
 
 export const useUserStore = defineStore('user', () => {
   const openid = ref(uni.getStorageSync('openid') || '')
-  const token = ref(uni.getStorageSync('token') || '')
-  const userInfo = ref(null)
+  const userInfo = ref(uni.getStorageSync('userInfo') || null)
   const userType = ref(uni.getStorageSync('userType') || 'VISITOR')
+  const loginReady = ref(false)
+  const loginLoading = ref(false)
 
   const isLoggedIn = computed(() => userType.value === 'MEMBER')
   const isVisitor = computed(() => userType.value === 'VISITOR')
 
   function setLogin(data) {
-    openid.value = data.openid || ''
-    token.value = data.token || ''
-    userType.value = data.userType || 'VISITOR'
-    userInfo.value = data.userInfo || null
+    const user = data.user || data
+    openid.value = user.openid || ''
+    userType.value = user.userType || 'VISITOR'
+    userInfo.value = user
     uni.setStorageSync('openid', openid.value)
-    uni.setStorageSync('token', token.value)
     uni.setStorageSync('userType', userType.value)
+    uni.setStorageSync('userInfo', userInfo.value)
+  }
+
+  async function silentLogin() {
+    if (loginLoading.value) return
+    loginLoading.value = true
+    try {
+      const loginResult = await new Promise((resolve, reject) => {
+        uni.login({ provider: 'weixin', success: resolve, fail: reject })
+      })
+      const response = await userApi.login(loginResult.code)
+      setLogin(response.data)
+      return response.data
+    } finally {
+      loginLoading.value = false
+      loginReady.value = true
+    }
   }
 
   function logout() {
-    token.value = ''
     userType.value = 'VISITOR'
-    userInfo.value = null
-    uni.removeStorageSync('token')
+    userInfo.value = userInfo.value ? { ...userInfo.value, userType: 'VISITOR' } : null
     uni.setStorageSync('userType', 'VISITOR')
+    uni.setStorageSync('userInfo', userInfo.value)
   }
 
-  return { openid, token, userInfo, userType, isLoggedIn, isVisitor, setLogin, logout }
+  return {
+    openid,
+    userInfo,
+    userType,
+    loginReady,
+    loginLoading,
+    isLoggedIn,
+    isVisitor,
+    setLogin,
+    silentLogin,
+    logout
+  }
 })

@@ -94,6 +94,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { contentApi, holidayApi } from '@/api'
 import DualClock from '@/components/DualClock.vue'
 import HolidayTag from '@/components/HolidayTag.vue'
 import PhoneInput from '@/components/PhoneInput.vue'
@@ -103,20 +104,32 @@ import HmEmpty from '@/components/HmEmpty.vue'
 const statusBarHeight = ref(20)
 const navHeight = ref(44)
 const capsuleRight = ref(100)
-
 const phone = ref('')
 const phoneValid = ref(false)
 const operator = ref(null)
 const showOperatorSheet = ref(false)
 const holidays = ref([])
 const newsList = ref([])
-
 const categories = [
-  { id: 1, name: '酒店住宿', icon: '🏨' },
-  { id: 2, name: '餐饮生活', icon: '🍽️' },
-  { id: 3, name: '企业服务', icon: '🏢' },
-  { id: 4, name: '物流运输', icon: '🚚' }
+  { id: 'HOTEL', name: '酒店住宿', icon: '🏨' },
+  { id: 'FOOD', name: '餐饮生活', icon: '🍽️' },
+  { id: 'SERVICE', name: '企业服务', icon: '🏢' },
+  { id: 'LOGISTICS', name: '物流运输', icon: '🚚' }
 ]
+
+async function loadHomeData() {
+  const [holidayResult, newsResult] = await Promise.allSettled([
+    holidayApi.getHolidays(),
+    contentApi.getNewsList({ page: 1, size: 3 })
+  ])
+  if (holidayResult.status === 'fulfilled') holidays.value = holidayResult.value.data || []
+  if (newsResult.status === 'fulfilled') newsList.value = (newsResult.value.data?.records || []).map(item => ({
+    ...item,
+    cover: item.coverUrl,
+    publishTime: item.publishedAt ? String(item.publishedAt).replace('T', ' ').slice(0, 10) : '',
+    isTop: item.isTop === 1
+  }))
+}
 
 onMounted(() => {
   const sysInfo = uni.getSystemInfoSync()
@@ -124,56 +137,16 @@ onMounted(() => {
   const menuBtn = uni.getMenuButtonBoundingClientRect()
   capsuleRight.value = sysInfo.windowWidth - menuBtn.left + 8
   navHeight.value = sysInfo.platform === 'ios' ? 44 : 48
-
-  loadMockData()
+  loadHomeData()
 })
-
-function loadMockData() {
-  holidays.value = [
-    { id: 1, name: '开斋节', status: 'PENDING_MOON' }
-  ]
-  newsList.value = [
-    { id: 1, title: '孟加拉签证政策更新通知', cover: '', publishTime: '2026-07-25', isTop: true },
-    { id: 2, title: '达卡华人超市新开张', cover: '', publishTime: '2026-07-24', isTop: false },
-    { id: 3, title: '雨季出行安全提醒', cover: '', publishTime: '2026-07-23', isTop: false }
-  ]
-}
-
-function onOperatorChange(op) {
-  operator.value = op
-}
-
-function onValidChange(valid) {
-  phoneValid.value = valid
-}
-
-function onOperatorSelect(op) {
-  operator.value = op
-  showOperatorSheet.value = false
-}
-
-function goRecharge() {
-  if (!phoneValid.value) return
-  uni.navigateTo({
-    url: `/pages/recharge/recharge?phone=${phone.value}&operatorId=${operator.value?.id || ''}`
-  })
-}
-
-function goNews() {
-  uni.switchTab({ url: '/pages/news/news' })
-}
-
-function goNewsDetail(id) {
-  uni.navigateTo({ url: `/pages/news/news?id=${id}` })
-}
-
-function goCompany() {
-  uni.switchTab({ url: '/pages/company/company' })
-}
-
-function goCompanyList(id) {
-  uni.navigateTo({ url: `/pages/company/company?categoryId=${id}` })
-}
+function onOperatorChange(op) { operator.value = op }
+function onValidChange(valid) { phoneValid.value = valid }
+function onOperatorSelect(op) { operator.value = op; showOperatorSheet.value = false }
+function goRecharge() { if (phoneValid.value) uni.navigateTo({ url: `/pages/recharge/recharge?phone=${phone.value}&operatorId=${operator.value?.id || ''}` }) }
+function goNews() { uni.switchTab({ url: '/pages/news/news' }) }
+function goNewsDetail(id) { uni.navigateTo({ url: `/pages/news-detail/news-detail?id=${id}` }) }
+function goCompany() { uni.switchTab({ url: '/pages/company/company' }) }
+function goCompanyList(category) { uni.navigateTo({ url: `/pages/company/company?category=${category}` }) }
 </script>
 
 <style lang="scss" scoped>

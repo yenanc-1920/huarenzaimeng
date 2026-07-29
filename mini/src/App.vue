@@ -1,13 +1,14 @@
 <script>
+import { useUserStore } from '@/stores/user'
+import { initCloud } from '@/api/request'
+
 export default {
   onLaunch() {
-    console.log('App Launch')
-  },
-  onShow() {
-    console.log('App Show')
-  },
-  onHide() {
-    console.log('App Hide')
+    initCloud()
+    const userStore = useUserStore()
+    userStore.silentLogin().catch((error) => {
+      console.warn('Silent login failed', error)
+    })
   }
 }
 </script>

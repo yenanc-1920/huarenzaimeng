@@ -43,36 +43,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { rechargeApi } from '@/api'
 import { useUserStore } from '@/stores/user'
-
-const status = ref('success')
-const amount = ref('')
-const price = ref('')
-const userStore = useUserStore()
-const isVisitor = ref(true)
-
-onMounted(() => {
-  const pages = getCurrentPages()
-  const page = pages[pages.length - 1]
-  const options = page.options || {}
-  status.value = options.status || 'success'
-  amount.value = options.amount || ''
-  price.value = options.price || ''
-  isVisitor.value = userStore.isVisitor
-})
-
-function goHome() {
-  uni.switchTab({ url: '/pages/index/index' })
-}
-
-function contactService() {
-  // 微信小程序在线客服
-}
-
-function goBind() {
-  uni.switchTab({ url: '/pages/my/my' })
-}
+const status=ref('processing'),amount=ref(''),price=ref(''),orderNo=ref(''),isVisitor=ref(true),timer=ref(null),attempts=ref(0);const userStore=useUserStore()
+function displayStatus(orderStatus){if(['SUCCESS','SUCCESSFUL'].includes(orderStatus))return'success';if(['FAILED','CANCELLED','REFUNDED'].includes(orderStatus))return'error';return'processing'}
+async function refreshOrder(){if(!orderNo.value||attempts.value>=30)return;attempts.value+=1;try{const r=await rechargeApi.getOrderStatus(orderNo.value),order=r.data;status.value=displayStatus(order.orderStatus);amount.value=order.bdtAmount||amount.value;price.value=order.cnyPrice||price.value;if(status.value==='processing')timer.value=setTimeout(refreshOrder,2000)}catch(e){if(attempts.value<30)timer.value=setTimeout(refreshOrder,3000)}}
+onMounted(()=>{const pages=getCurrentPages(),options=pages[pages.length-1].options||{};status.value=options.status||'processing';orderNo.value=options.orderNo||'';amount.value=options.amount||'';price.value=options.price||'';isVisitor.value=userStore.isVisitor;if(orderNo.value)refreshOrder()})
+onUnmounted(()=>{if(timer.value)clearTimeout(timer.value)})
+function goHome(){uni.switchTab({url:'/pages/index/index'})}function contactService(){uni.showToast({title:'请通过小程序客服联系我们',icon:'none'})}function goBind(){uni.switchTab({url:'/pages/my/my'})}
 </script>
 
 <style lang="scss" scoped>

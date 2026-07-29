@@ -1,0 +1,9 @@
+<template><view class="page"><HmSkeleton v-if="loading" :rows="8"/><HmError v-else-if="error" :text="error" @retry="loadDetail"/><article v-else-if="detail" class="article"><text class="title">{{detail.title}}</text><text class="meta">{{formatDate(detail.publishedAt)}} · 阅读 {{detail.viewCount||0}}</text><image v-if="detail.coverUrl" class="cover" :src="detail.coverUrl" mode="widthFix"/><rich-text class="body" :nodes="detail.content||detail.summary||''"/></article><HmEmpty v-else text="资讯不存在"/></view></template>
+<script setup>
+import {ref,onMounted} from 'vue'; import {contentApi} from '@/api'; import HmSkeleton from '@/components/HmSkeleton.vue'; import HmError from '@/components/HmError.vue'; import HmEmpty from '@/components/HmEmpty.vue'
+const detail=ref(null),loading=ref(true),error=ref(''),id=ref('')
+async function loadDetail(){loading.value=true;error.value='';try{const r=await contentApi.getNewsDetail(id.value);detail.value=r.data}catch(e){error.value=e.message||'资讯加载失败'}finally{loading.value=false}}
+function formatDate(v){return v?String(v).replace('T',' ').slice(0,16):''}
+onMounted(()=>{const pages=getCurrentPages();id.value=pages[pages.length-1].options?.id||'';if(id.value)loadDetail();else{loading.value=false;error.value='缺少资讯编号'}})
+</script>
+<style scoped>.page{min-height:100vh;background:#F5F7FA;padding:24rpx}.article{display:flex;flex-direction:column;background:#fff;border-radius:16rpx;padding:32rpx}.title{font-size:40rpx;font-weight:700;color:#222;line-height:1.45}.meta{font-size:24rpx;color:#999;margin:20rpx 0 28rpx}.cover{width:100%;border-radius:12rpx;margin-bottom:28rpx}.body{font-size:30rpx;color:#333;line-height:1.8}</style>

@@ -46,10 +46,20 @@ mvn test -B
 - 存活探针：`/api/actuator/health/liveness`
 - 就绪探针：`/api/actuator/health/readiness`
 
+## 小程序云托管调用
+
+微信小程序构建通过 `wx.cloud.callContainer` 访问云托管：
+
+- 云环境：`prod-d3g9ntdmsdf9d7877`
+- 服务名：`huarenzaimeng-server`
+- 服务端上下文：`/api`
+- 小程序业务接口前缀：`/api/wx`
+- 云托管自动注入 `x-wx-openid`，后端据此创建或识别游客用户
+
+如云托管服务改名或迁移环境，请同步修改 `mini/src/api/request.js` 中的 `CLOUD_ENV` 与 `CLOUD_SERVICE`。
+
 ## 当前已知缺口
 
-- 小程序请求层尚未切换为微信云托管 `wx.cloud.callContainer`
-- P0 uni-app 版暂缺订单、资讯详情和企业详情独立页面
 - 管理后台目前主要使用模拟数据，尚未完成真实 API 联调
 - 微信支付和退款链路尚未达到生产可用状态
 

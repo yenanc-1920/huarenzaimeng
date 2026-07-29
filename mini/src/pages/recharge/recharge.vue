@@ -90,82 +90,24 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { rechargeApi } from '@/api'
 import ProductCard from '@/components/ProductCard.vue'
 import OperatorSelector from '@/components/OperatorSelector.vue'
 import HmEmpty from '@/components/HmEmpty.vue'
 import { getOperators } from '@/utils/phone'
 
-const phone = ref('')
-const operator = ref(null)
-const activeTab = ref('AIRTIME')
-const selectedAirtime = ref(null)
-const selectedBundle = ref(null)
-const showOperatorSheet = ref(false)
-const mnpChecking = ref(false)
-
-const airtimeProducts = ref([])
-const bundleProducts = ref([])
-
-const selectedProduct = computed(() =>
-  activeTab.value === 'AIRTIME' ? selectedAirtime.value : selectedBundle.value
-)
-
-const currentProducts = computed(() =>
-  activeTab.value === 'AIRTIME' ? airtimeProducts.value : bundleProducts.value
-)
-
-onMounted(() => {
-  const pages = getCurrentPages()
-  const page = pages[pages.length - 1]
-  const options = page.options || {}
-  phone.value = options.phone || ''
-  const opId = Number(options.operatorId)
-  if (opId) {
-    operator.value = getOperators().find(op => op.id === opId) || null
-  }
-  loadMockProducts()
-})
-
-function loadMockProducts() {
-  airtimeProducts.value = [
-    { id: 1, priceCny: '21.5', amountBdt: '250', name: '' },
-    { id: 2, priceCny: '42.5', amountBdt: '500', name: '' },
-    { id: 3, priceCny: '85.0', amountBdt: '1000', name: '' },
-    { id: 4, priceCny: '127.5', amountBdt: '1500', name: '' },
-    { id: 5, priceCny: '170.0', amountBdt: '2000', name: '' },
-    { id: 6, priceCny: '255.0', amountBdt: '3000', name: '' }
-  ]
-  bundleProducts.value = [
-    { id: 101, priceCny: '35.0', amountBdt: '399', name: '7天 3GB流量包' },
-    { id: 102, priceCny: '55.0', amountBdt: '699', name: '30天 10GB流量包' },
-    { id: 103, priceCny: '85.0', amountBdt: '999', name: '30天 20GB流量包' }
-  ]
-}
-
-function switchTab(tab) {
-  activeTab.value = tab
-}
-
-function onSelectProduct(product) {
-  if (mnpChecking.value) return
-  if (activeTab.value === 'AIRTIME') {
-    selectedAirtime.value = product
-  } else {
-    selectedBundle.value = product
-  }
-}
-
-function onOperatorSelect(op) {
-  operator.value = op
-  showOperatorSheet.value = false
-}
-
-function goConfirm() {
-  if (!selectedProduct.value || mnpChecking.value) return
-  uni.navigateTo({
-    url: `/pages/confirm-order/confirm-order?phone=${phone.value}&operatorId=${operator.value?.id || ''}&productId=${selectedProduct.value.id}&topupType=${activeTab.value}`
-  })
-}
+const phone=ref(''),operator=ref(null),backendOperators=ref([]),activeTab=ref('AIRTIME'),selectedAirtime=ref(null),selectedBundle=ref(null),showOperatorSheet=ref(false),mnpChecking=ref(false),loading=ref(false)
+const airtimeProducts=ref([]),bundleProducts=ref([])
+const selectedProduct=computed(()=>activeTab.value==='AIRTIME'?selectedAirtime.value:selectedBundle.value)
+const currentProducts=computed(()=>activeTab.value==='AIRTIME'?airtimeProducts.value:bundleProducts.value)
+function normalizeProduct(item){return {...item,priceCny:String(item.cnyPrice??item.priceCny??''),amountBdt:String(item.bdtAmount??item.amountBdt??'')}}
+async function loadProducts(type=activeTab.value){if(!operator.value?.id)return;loading.value=true;try{const r=await rechargeApi.getProducts(operator.value.id,type);const list=(r.data||[]).map(normalizeProduct);if(type==='AIRTIME')airtimeProducts.value=list;else bundleProducts.value=list}catch(e){if(type==='AIRTIME')airtimeProducts.value=[];else bundleProducts.value=[]}finally{loading.value=false}}
+async function initialize(options){phone.value=options.phone||'';const response=await rechargeApi.getOperators();backendOperators.value=response.data||[];const local=getOperators().find(op=>op.id===Number(options.operatorId));operator.value=backendOperators.value.find(op=>op.id===Number(options.operatorId))||backendOperators.value.find(op=>op.name?.toLowerCase()===local?.name?.toLowerCase())||null;if(!operator.value&&backendOperators.value.length)operator.value=backendOperators.value[0];await Promise.all([loadProducts('AIRTIME'),loadProducts('BUNDLE')])}
+function switchTab(tab){activeTab.value=tab;if(!currentProducts.value.length)loadProducts(tab)}
+function onSelectProduct(product){if(mnpChecking.value)return;if(activeTab.value==='AIRTIME')selectedAirtime.value=product;else selectedBundle.value=product}
+function onOperatorSelect(localOperator){operator.value=backendOperators.value.find(op=>op.name?.toLowerCase()===localOperator.name.toLowerCase())||localOperator;selectedAirtime.value=null;selectedBundle.value=null;showOperatorSheet.value=false;loadProducts('AIRTIME');loadProducts('BUNDLE')}
+function goConfirm(){if(!selectedProduct.value||mnpChecking.value)return;uni.setStorageSync('pendingProduct',selectedProduct.value);uni.navigateTo({url:`/pages/confirm-order/confirm-order?phone=${phone.value}&operatorId=${operator.value?.id||''}&productId=${selectedProduct.value.id}&topupType=${activeTab.value}&operatorName=${encodeURIComponent(operator.value?.name||'')}`})}
+onMounted(()=>{const pages=getCurrentPages();initialize(pages[pages.length-1].options||{}).catch(()=>uni.showToast({title:'商品加载失败',icon:'none'}))})
 </script>
 
 <style lang="scss" scoped>

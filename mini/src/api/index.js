@@ -1,30 +1,29 @@
-import { get, post } from './request'
+import { get, post, put } from './request'
 
 export const userApi = {
-  login: (code) => post('/api/user/login', { code }),
-  getProfile: () => get('/api/user/me'),
-  updateProfile: (data) => post('/api/user/profile', data)
+  login: (code) => post('/wx/user/login', code ? { code } : {}),
+  getProfile: () => get('/wx/user/me'),
+  updateProfile: (data) => put('/wx/user/me', data)
 }
 
 export const rechargeApi = {
-  getOperators: () => get('/api/operators'),
-  getProducts: (operatorId, topupType) => get('/api/products', { operatorId, topupType }),
-  validatePhone: (phone) => get('/api/recharge/validate', { phone }),
-  createOrder: (data) => post('/api/recharge/order', data),
-  getOrderStatus: (orderNo) => get(`/api/recharge/order/${orderNo}`)
+  getOperators: () => get('/wx/operators'),
+  getProducts: (operatorId, topupType) => get('/wx/products', { operatorId, topupType }),
+  createOrder: (data) => post('/wx/order/create', data),
+  getOrderStatus: (orderNo) => get(`/wx/order/${orderNo}`)
 }
 
 export const contentApi = {
-  getNewsList: (params) => get('/api/news', params),
-  getNewsDetail: (id) => get(`/api/news/${id}`),
-  getCompanies: (params) => get('/api/companies', params),
-  getCompanyDetail: (id) => get(`/api/companies/${id}`)
+  getNewsList: (params) => get('/wx/news', params),
+  getNewsDetail: (id) => get(`/wx/news/${id}`),
+  getCompanies: (params) => get('/wx/companies', params),
+  getCompanyDetail: (id) => get(`/wx/companies/${id}`)
 }
 
 export const orderApi = {
-  getMyOrders: (params) => get('/api/orders/mine', params)
+  getMyOrders: (params) => get('/wx/orders', params)
 }
 
 export const holidayApi = {
-  getHolidays: () => get('/api/holidays')
+  getHolidays: (params) => get('/wx/holidays/upcoming', params)
 }

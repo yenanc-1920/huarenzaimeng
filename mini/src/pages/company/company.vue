@@ -1,66 +1,9 @@
-<template>
-  <view class="company-page">
-    <view class="category-grid">
-      <view v-for="cat in categories" :key="cat.id" class="category-card" @tap="goList(cat.id)">
-        <text class="category-card__icon">{{ cat.icon }}</text>
-        <text class="category-card__name">{{ cat.name }}</text>
-        <text class="category-card__count">{{ cat.count }}家企业</text>
-      </view>
-    </view>
-  </view>
-</template>
-
+<template><view class="page"><view class="search"><input v-model="keyword" placeholder="搜索企业名称" confirm-type="search" @confirm="loadCompanies"/><text @tap="loadCompanies">搜索</text></view><scroll-view scroll-x class="categories"><view class="category-row"><text v-for="item in categories" :key="item.value" class="category" :class="{active:category===item.value}" @tap="selectCategory(item.value)">{{item.label}}</text></view></scroll-view><HmSkeleton v-if="loading" :rows="6"/><HmError v-else-if="error" :text="error" @retry="loadCompanies"/><template v-else><view v-for="item in companies" :key="item.id" class="card" @tap="goDetail(item.id)"><image v-if="item.logoUrl&&item.logoAuditStatus==='PASS'" class="logo" :src="item.logoUrl" mode="aspectFill"/><view v-else class="logo placeholder">企</view><view class="info"><text class="name">{{item.name}}</text><text class="desc">{{item.description||'暂无企业简介'}}</text><text class="address">{{item.address||'地址待完善'}}</text></view></view><HmEmpty v-if="!companies.length" text="暂无企业"/></template></view></template>
 <script setup>
-import { ref } from 'vue'
-
-const categories = ref([
-  { id: 1, name: '酒店住宿', icon: '🏨', count: 12 },
-  { id: 2, name: '餐饮生活', icon: '🍽️', count: 8 },
-  { id: 3, name: '企业服务', icon: '🏢', count: 15 },
-  { id: 4, name: '物流运输', icon: '🚚', count: 6 }
-])
-
-function goList(id) {
-  uni.navigateTo({ url: `/pages/company/company?categoryId=${id}` })
-}
+import {ref,onMounted} from 'vue';import {contentApi} from '@/api';import HmSkeleton from '@/components/HmSkeleton.vue';import HmError from '@/components/HmError.vue';import HmEmpty from '@/components/HmEmpty.vue'
+const companies=ref([]),loading=ref(true),error=ref(''),keyword=ref(''),category=ref('');const categories=[{label:'全部',value:''},{label:'酒店住宿',value:'HOTEL'},{label:'餐饮生活',value:'FOOD'},{label:'企业服务',value:'SERVICE'},{label:'物流运输',value:'LOGISTICS'}]
+async function loadCompanies(){loading.value=true;error.value='';try{const r=await contentApi.getCompanies({page:1,size:50,category:category.value||undefined,keyword:keyword.value||undefined});companies.value=r.data?.records||[]}catch(e){error.value=e.message||'企业加载失败'}finally{loading.value=false}}
+function selectCategory(v){category.value=v;loadCompanies()}function goDetail(id){uni.navigateTo({url:`/pages/company-detail/company-detail?id=${id}`})}
+onMounted(()=>{const pages=getCurrentPages(),option=pages[pages.length-1].options||{};category.value=option.category||'';loadCompanies()})
 </script>
-
-<style lang="scss" scoped>
-.company-page {
-  min-height: 100vh;
-  background: #F5F7FA;
-  padding: 24rpx;
-}
-
-.category-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
-}
-
-.category-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #FFFFFF;
-  border-radius: 16rpx;
-  padding: 48rpx 24rpx;
-  gap: 12rpx;
-
-  &__icon {
-    font-size: 64rpx;
-  }
-
-  &__name {
-    font-size: 30rpx;
-    font-weight: 600;
-    color: #333333;
-  }
-
-  &__count {
-    font-size: 24rpx;
-    color: #999999;
-  }
-}
-</style>
+<style scoped>.page{min-height:100vh;background:#F5F7FA;padding:24rpx}.search{display:flex;align-items:center;gap:20rpx;background:#fff;padding:18rpx 24rpx;border-radius:12rpx}.search input{flex:1;font-size:28rpx}.search text{color:#003366}.categories{white-space:nowrap;margin:20rpx 0}.category-row{display:inline-flex;gap:12rpx}.category{padding:12rpx 24rpx;background:#fff;border-radius:999rpx;color:#666}.active{background:#003366;color:#fff}.card{display:flex;gap:20rpx;background:#fff;padding:24rpx;border-radius:16rpx;margin-bottom:16rpx}.logo{width:112rpx;height:112rpx;border-radius:12rpx;flex-shrink:0}.placeholder{display:flex;align-items:center;justify-content:center;background:#E8EDF3;color:#8291A3;font-size:40rpx}.info{min-width:0;display:flex;flex-direction:column;gap:8rpx}.name{font-size:30rpx;font-weight:600;color:#333}.desc,.address{font-size:25rpx;color:#777;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}</style>
