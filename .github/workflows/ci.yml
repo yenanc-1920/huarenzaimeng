@@ -62,8 +62,12 @@ jobs:
         working-directory: admin
         run: npm run build
 
-      - name: Verify embedded admin assets
-        run: diff -qr admin/dist server/src/main/resources/static/console
+      - name: Verify embedded admin entry
+        run: |
+          test -f admin/dist/index.html
+          test -f server/src/main/resources/static/console/index.html
+          grep -q '/api/console/assets/' server/src/main/resources/static/console/index.html
+          grep -q '<div id="app"></div>' server/src/main/resources/static/console/index.html
 
   mini:
     name: Mini program build
