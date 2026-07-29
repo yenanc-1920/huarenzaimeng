@@ -34,8 +34,8 @@ app:
   reloadly:
     client-id: ${RELOADLY_CLIENT_ID:}
     client-secret: ${RELOADLY_CLIENT_SECRET:}
-    auth-url: https://auth.reloadly.com/oauth/token
-    api-url: https://topups.reloadly.com
+    auth-url: ${RELOADLY_AUTH_URL:https://auth.reloadly.com/oauth/token}
+    api-url: ${RELOADLY_API_URL:https://topups-sandbox.reloadly.com}
   jwt:
     secret: ${JWT_SECRET:huarenzaimeng-v1-secret-key}
     expiration-hours: ${JWT_EXPIRATION_HOURS:24}

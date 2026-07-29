@@ -12,6 +12,7 @@ import okhttp3.*;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -36,7 +37,7 @@ public class ReloadlyClient {
                 .build();
         this.tokenCache = Caffeine.newBuilder()
                 .maximumSize(1)
-                .expireAfterWrite(50, TimeUnit.DAYS)
+                .expireAfterWrite(23, TimeUnit.HOURS)
                 .build();
     }
 
@@ -54,10 +55,17 @@ public class ReloadlyClient {
             return cached;
         }
 
-        String body = "{\"client_id\":\"" + properties.getClientId() + "\","
-                + "\"client_secret\":\"" + properties.getClientSecret() + "\","
-                + "\"grant_type\":\"client_credentials\","
-                + "\"audience\":\"https://topups.reloadly.com\"}";
+        String body;
+        try {
+            body = objectMapper.writeValueAsString(Map.of(
+                    "client_id", properties.getClientId().trim(),
+                    "client_secret", properties.getClientSecret().trim(),
+                    "grant_type", "client_credentials",
+                    "audience", properties.getApiUrl()
+            ));
+        } catch (IOException e) {
+            throw new ReloadlyException("Reloadly OAuth request serialization failed", "OAUTH_SERIALIZE");
+        }
 
         Request request = new Request.Builder()
                 .url(properties.getAuthUrl())
